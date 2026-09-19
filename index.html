@@ -15,7 +15,7 @@ nav button{position:absolute;bottom:5.2%;height:6%;border:0;background:transpare
 .toast{position:fixed;z-index:30;top:30px;left:50%;transform:translateX(-50%);background:#17231c;color:#fff;padding:10px 14px;border-radius:99px;display:none;font-size:13px}
 @media(max-width:360px){textarea{font-size:13px}}
 </style></head><body>
-<main class="stage"><textarea id="dump" maxlength="1000" placeholder=""></textarea>
+<main class="stage"><textarea id="dump" maxlength="1000" placeholder="Dump absolutely anything..."></textarea>
 <button id="speak" aria-label="Speak">Speak</button><button id="dumpBtn" aria-label="Dump it">Dump it</button><div class="count" id="count" style="display:none"></div>
 <section id="recent" class="empty"></section>
 <nav><button id="home">Home</button><button id="today">Today</button><button id="cats">Categories</button><button id="search">Search</button></nav></main>
@@ -27,9 +27,38 @@ function classify(t){for(const[name,re,icon]of cats)if(re.test(t))return{name,ic
 function splitDump(t){return t.replace(/\n+/g,'. ').split(/(?:[.!?]+\s+|;\s*|,\s+(?=(?:need|order|remember|idea|look|buy|call|email|finish|make|find)\b))/i).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(x=>x.length>2)}
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function save(){localStorage.setItem(KEY,JSON.stringify(thoughts));render()}
-function render(){let x=thoughts[thoughts.length-1];$('#count').textContent=`${thoughts.length} thought${thoughts.length===1?'':'s'}`;if(!x){$('#recent').className='empty';$('#recent').innerHTML='';return}$('#recent').className='';$('#recent').innerHTML=`<div class="ico">${x.icon}</div><div><div class="title">${esc(x.text)}</div><div class="meta">${x.category} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="check" type="checkbox" ${x.done?'checked':''}>`;$('.check').onchange=e=>{x.done=e.target.checked;save()}}
+function render(){let x=thoughts[thoughts.length-1];$('#count').textContent=`${$('#dump').value.length}/1000`;if(!x){$('#recent').className='empty';$('#recent').innerHTML='';return}$('#recent').className='';$('#recent').innerHTML=`<div class="ico">${x.icon}</div><div><div class="title">${esc(x.text)}</div><div class="meta">${x.category} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="check" type="checkbox" ${x.done?'checked':''}>`;$('.check').onchange=e=>{x.done=e.target.checked;save()}}
 function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',1600)}
+$('#dump').oninput=()=>$('#count').textContent=`${$('#dump').value.length}/1000`;
 $('#dumpBtn').onclick=()=>{let raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{splitDump(raw).forEach(text=>{let c=classify(text);thoughts.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+Math.random()+'',text,category:c.name,icon:c.icon,created:Date.now(),done:false})});save();$('#dump').value='';$('#sorting').classList.remove('show')},850)};
 $('#speak').onclick=()=>{let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Voice capture needs Safari support');let r=new SR();r.lang='en-GB';r.onresult=e=>{$('#dump').value+=($('#dump').value?' ':'')+e.results[0][0].transcript};r.start()};
-$('#today').onclick=()=>toast('Today screen is next ✦');$('#cats').onclick=()=>toast('Categories screen is next ✦');$('#search').onclick=()=>{let q=prompt('Search your brain:');if(q){let n=thoughts.filter(t=>t.text.toLowerCase().includes(q.toLowerCase())).length;toast(`${n} match${n===1?'':'es'}`)}};render();
-</script></body></html>
+
+function closeScreens(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'))}
+document.querySelectorAll('.back').forEach(b=>b.onclick=closeScreens);
+$('#home').onclick=closeScreens;
+$('#today').onclick=()=>{closeScreens();let box=$('#todayList');box.innerHTML=thoughts.length?thoughts.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${t.category}</small></div>`).join(''):'<div class="item">Nothing dumped yet.</div>';$('#todayScreen').classList.add('show')};
+$('#cats').onclick=()=>{closeScreens();let groups={};thoughts.forEach(t=>(groups[t.category]??=[]).push(t));$('#catList').innerHTML=Object.keys(groups).length?Object.entries(groups).map(([c,a])=>`<div class="item"><b>${esc(c)}</b><small>${a.length} thought${a.length===1?'':'s'}</small></div>`).join(''):'<div class="item">Your categories will appear here.</div>';$('#catsScreen').classList.add('show')};
+$('#search').onclick=()=>{closeScreens();$('#searchScreen').classList.add('show');$('#searchBox').focus()};
+$('#searchBox').oninput=e=>{let q=e.target.value.toLowerCase();let a=q?thoughts.filter(t=>t.text.toLowerCase().includes(q)||t.category.toLowerCase().includes(q)):[];$('#searchList').innerHTML=a.map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${t.category}</small></div>`).join('')};
+render();
+
+</script>
+<style>
+/* Functional layer over the locked approved artwork */
+#dump{color:#31261f!important;caret-color:#31261f!important;background:#f7eedf!important;opacity:.97}
+#dump::placeholder{color:#aaa39c}
+.count{display:block!important;top:45.55%!important;right:9%!important;color:#342b25!important;font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;z-index:5}
+#recent{display:grid!important;top:59.4%!important;left:4.8%!important;width:90.5%!important;height:7.9%!important;background:#171c15!important;z-index:5}
+#recent.empty{display:none!important}
+#speak,#dumpBtn{z-index:8;cursor:pointer}
+.screen{position:absolute;inset:0;z-index:15;background:#0e1510;color:#f5ead6;padding:42px 24px 120px;display:none;overflow:auto}
+.screen.show{display:block}.screen h1{font:42px Georgia,serif;margin:18px 0 6px}.screen .sub{opacity:.68;margin-bottom:24px}
+.back{border:1px solid #716b50;background:#1a2119;color:#f5ead6;border-radius:999px;padding:10px 14px;font-size:15px}
+.item{border:1px solid #625f47;background:#171d16;border-radius:18px;padding:15px;margin:10px 0}
+.item b{font-family:Georgia,serif;font-size:17px}.item small{display:block;opacity:.65;margin-top:5px;text-transform:uppercase;letter-spacing:.07em}
+#searchBox{width:100%;padding:14px;border-radius:15px;border:1px solid #756d53;background:#f6eddd;color:#2f2822;font-size:16px}
+</style>
+<div class="screen" id="todayScreen"><button class="back">← Home</button><h1>today</h1><div class="sub">The bits your brain needs today.</div><div id="todayList"></div></div>
+<div class="screen" id="catsScreen"><button class="back">← Home</button><h1>categories</h1><div class="sub">Your chaos, with homes.</div><div id="catList"></div></div>
+<div class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></div>
+</body></html>
