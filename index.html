@@ -101,3 +101,61 @@ render();
 }
 #recent.empty{display:none!important}
 </style>
+
+<style>
+/* Exact coordinates measured from approved-home.png (851 × 1685) */
+#dump{
+ left:6.7%!important;
+ top:33.1%!important;
+ width:87.0%!important;
+ height:14.3%!important;
+ background:#f5ead9!important;
+ border:1px solid #d5c3ac!important;
+ border-radius:18px!important;
+ padding:20px 22px!important;
+ color:#31261f!important;
+ font-size:15px!important;
+ z-index:8!important;
+}
+#dump::placeholder{color:#aaa39c!important}
+.count{
+ display:block!important;
+ top:45.3%!important;
+ right:9.3%!important;
+ color:#2f2822!important;
+ z-index:9!important;
+}
+#recent{
+ display:grid!important;
+ left:4.7%!important;
+ top:64.1%!important;
+ width:90.7%!important;
+ height:8.9%!important;
+ margin:0!important;
+ padding:10px 14px!important;
+ background:#171d16!important;
+ border:1px solid #746e50!important;
+ border-radius:18px!important;
+ z-index:9!important;
+}
+/* cover only the baked static "1 thought" counter */
+.baked-count-cover{
+ position:absolute;left:79.5%;top:59.4%;width:17.5%;height:3.2%;
+ background:#111610;z-index:7;border-radius:8px;
+}
+.live-thought-count{
+ position:absolute;right:6.3%;top:60.0%;z-index:8;color:#f4e8d0;
+ font:14px Georgia,serif;
+}
+</style>
+<div class="baked-count-cover" aria-hidden="true"></div>
+<div class="live-thought-count" id="liveThoughtCount"></div>
+<script>
+function updateThoughtCount(){
+ const n=thoughts.length, el=document.getElementById('liveThoughtCount');
+ if(el) el.textContent=`${n} thought${n===1?'':'s'}`;
+}
+const _renderFinal=render;
+render=function(){_renderFinal();updateThoughtCount()}
+updateThoughtCount();
+</script>
