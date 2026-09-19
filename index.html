@@ -61,4 +61,28 @@ render();
 <div class="screen" id="todayScreen"><button class="back">← Home</button><h1>today</h1><div class="sub">The bits your brain needs today.</div><div id="todayList"></div></div>
 <div class="screen" id="catsScreen"><button class="back">← Home</button><h1>categories</h1><div class="sub">Your chaos, with homes.</div><div id="catList"></div></div>
 <div class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></div>
+
+<style>
+/* Clean functional overlays: cover only baked dynamic areas */
+.input-clean{
+ position:absolute;left:6.2%;top:35.2%;width:87.5%;height:14.2%;
+ background:#f6eddd;border:1px solid #d8c8b4;border-radius:18px;z-index:3;
+}
+#dump{
+ left:7.4%!important;top:36.1%!important;width:84.8%!important;height:12.4%!important;
+ background:transparent!important;opacity:1!important;z-index:4!important;
+ color:#31261f!important;padding:12px 13px!important;
+}
+.count{top:46.3%!important;right:9.2%!important;z-index:6!important}
+.recent-clean{
+ position:absolute;left:4.6%;top:57.1%;width:91%;height:9.5%;
+ background:#111710;border-radius:17px;z-index:3;
+}
+#recent{
+ top:58.0%!important;left:5.2%!important;width:89.8%!important;height:7.9%!important;
+ z-index:5!important;margin:0!important;
+}
+</style>
+<div class="input-clean" aria-hidden="true"></div>
+<div class="recent-clean" aria-hidden="true"></div>
 </body></html>
