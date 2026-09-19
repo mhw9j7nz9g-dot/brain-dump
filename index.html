@@ -1,161 +1,49 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101610"><meta name="apple-mobile-web-app-capable" content="yes"><title>Brain Dump</title>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b100c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Brain Dump</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;background:#090b09;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.stage{position:relative;width:min(100vw,430px);aspect-ratio:851/1685;margin:auto;background:url("approved-home.png") top center/100% 100% no-repeat;overflow:hidden}
-textarea{position:absolute;left:6.8%;top:35.8%;width:86.8%;height:13.2%;border:0;background:transparent;border-radius:17px;padding:13px 14px;color:transparent;caret-color:#31261f;font:15px/1.45 inherit;resize:none;outline:none}
-#speak,#dumpBtn{position:absolute;top:50.45%;height:5.1%;border:0;background:transparent;color:transparent}
-#speak{left:7%;width:35%}#dumpBtn{left:45%;width:48%}
-#recent{display:none!important;position:absolute;left:4.8%;top:64.3%;width:90.5%;height:8.3%;display:grid;grid-template-columns:52px 1fr 36px;gap:10px;align-items:center;padding:8px 12px;color:#f4e8d0;background:rgba(20,29,22,.96);border:1px solid #766b4c;border-radius:18px}
-#recent.empty{display:none}.ico{width:46px;height:46px;border:1px solid #887a55;border-radius:13px;display:grid;place-items:center;font-size:22px}.title{font:600 16px Georgia,serif}.meta{font-size:10px;letter-spacing:.09em;color:#bdb09c;margin-top:5px;text-transform:uppercase}.check{appearance:none;width:25px;height:25px;border:1.5px solid #d9c8ad;border-radius:50%}.check:checked{background:#9d4c2d;box-shadow:inset 0 0 0 5px #182019}
-.count{position:absolute;right:7%;top:61.5%;color:#f4e8d0;font:13px Georgia,serif}
-nav button{position:absolute;bottom:5.2%;height:6%;border:0;background:transparent;color:transparent}#home{left:5%;width:21%}#today{left:27%;width:21%}#cats{left:49%;width:24%}#search{left:74%;width:21%}
-.sorting{position:fixed;inset:0;z-index:20;background:#111a14;color:#f4e8d0;display:none;place-items:center;text-align:center}.sorting.show{display:grid}.sorting h2{font:32px Georgia,serif;margin:14px}.sorting div div{font-size:50px}.sorting p{font:14px Georgia,serif;opacity:.75}
-.toast{position:fixed;z-index:30;top:30px;left:50%;transform:translateX(-50%);background:#17231c;color:#fff;padding:10px 14px;border-radius:99px;display:none;font-size:13px}
-@media(max-width:360px){textarea{font-size:13px}}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#090c09;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{position:relative;width:min(100vw,430px);aspect-ratio:851/1685;margin:auto;background:url("approved-home.png") top center/100% 100% no-repeat;overflow:hidden}
+#dump{position:absolute;left:6.7%;top:33.1%;width:87%;height:14.3%;z-index:5;border:1px solid #d5c3ac;border-radius:18px;background:rgba(245,234,217,.96);padding:18px 20px 34px;color:#31261f;font:15px/1.45 inherit;resize:none;outline:none}
+#dump::placeholder{color:#aaa39c}.counter{position:absolute;right:9.3%;top:45.25%;z-index:6;color:#342b25;font-size:12px}
+.hit{position:absolute;z-index:7;border:0;background:transparent;color:transparent}
+#speak{left:7%;top:48.7%;width:35%;height:5.1%}#dumpBtn{left:45%;top:48.7%;width:48%;height:5.1%}
+#dynamicCard{position:absolute;left:4.8%;top:64.0%;width:90.4%;height:8.7%;z-index:8;display:grid;grid-template-columns:48px 1fr 32px;gap:11px;align-items:center;padding:10px 13px;border:1px solid #746e50;border-radius:18px;background:#171d16;color:#f4e8d0}
+#dynamicCard.hidden{display:none}.moon{width:45px;height:45px;border:1px solid #817655;border-radius:13px;display:grid;place-items:center;font-size:22px}.thoughtTitle{font:600 16px Georgia,serif}.meta{margin-top:4px;font-size:10px;letter-spacing:.08em;color:#bdb09c;text-transform:uppercase}.done{appearance:none;width:25px;height:25px;border:1.5px solid #d9c8ad;border-radius:50%}.done:checked{background:#9d4c2d;box-shadow:inset 0 0 0 5px #171d16}
+nav button{position:absolute;bottom:3.7%;height:6%;z-index:9;border:0;background:transparent;color:transparent}#home{left:5%;width:21%}#today{left:27%;width:21%}#cats{left:49%;width:24%}#search{left:74%;width:21%}
+.screen{position:absolute;inset:0;z-index:20;display:none;overflow:auto;padding:44px 22px calc(100px + env(safe-area-inset-bottom));background:#0f1611;color:#f5ead6}.screen.show{display:block}.screen h1{font:42px Georgia,serif;margin:22px 0 5px}.screen .sub{opacity:.7;margin-bottom:24px}.back{border:1px solid #716b50;background:#1a2119;color:#f5ead6;border-radius:999px;padding:10px 14px}.item{border:1px solid #625f47;background:#171d16;border-radius:18px;padding:15px;margin:10px 0}.item b{font:17px Georgia,serif}.item small{display:block;opacity:.65;margin-top:5px;text-transform:uppercase;letter-spacing:.07em}#searchBox{width:100%;padding:14px;border:1px solid #756d53;border-radius:15px;background:#f6eddd;color:#2f2822;font-size:16px}
+.sorting{position:fixed;inset:0;z-index:30;display:none;place-items:center;text-align:center;background:#111a14;color:#f4e8d0}.sorting.show{display:grid}.sorting .moonbig{font-size:52px}.sorting h2{font:34px Georgia,serif;margin:12px}.sorting p{font:14px Georgia,serif;opacity:.72}.toast{position:fixed;top:calc(18px + env(safe-area-inset-top));left:50%;z-index:40;display:none;transform:translateX(-50%);white-space:nowrap;padding:10px 14px;border-radius:99px;background:#17231c;color:white;font-size:13px}
 </style></head><body>
-<main class="stage"><textarea id="dump" maxlength="1000" placeholder="Dump absolutely anything..."></textarea>
-<button id="speak" aria-label="Speak">Speak</button><button id="dumpBtn" aria-label="Dump it">Dump it</button><div class="count" id="count" style="display:none"></div>
-<section id="recent" class="empty"></section>
-<nav><button id="home">Home</button><button id="today">Today</button><button id="cats">Categories</button><button id="search">Search</button></nav></main>
-<div class="sorting" id="sorting"><div><div>☾ ✦</div><h2>sorting<br>the chaos…</h2><p>Breaking it down, finding the right homes<br>and making sense of the madness.</p></div></div><div class="toast" id="toast"></div>
+<main class="app">
+<textarea id="dump" maxlength="1000" placeholder="Dump absolutely anything..."></textarea><div class="counter" id="counter">0/1000</div>
+<button class="hit" id="speak" aria-label="Speak">Speak</button><button class="hit" id="dumpBtn" aria-label="Dump it">Dump it</button>
+<section id="dynamicCard" class="hidden"></section>
+<nav><button id="home">Home</button><button id="today">Today</button><button id="cats">Categories</button><button id="search">Search</button></nav>
+<section class="screen" id="todayScreen"><button class="back">← Home</button><h1>today</h1><div class="sub">The bits your brain needs today.</div><div id="todayList"></div></section>
+<section class="screen" id="catsScreen"><button class="back">← Home</button><h1>categories</h1><div class="sub">Your chaos, with homes.</div><div id="catList"></div></section>
+<section class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></section>
+</main>
+<div class="sorting" id="sorting"><div><div class="moonbig">☾ ✦</div><h2>sorting<br>the chaos…</h2><p>Breaking it down and finding the right homes.</p></div></div><div class="toast" id="toast"></div>
 <script>
-const $=s=>document.querySelector(s),KEY='brain-dump-v1';let thoughts=JSON.parse(localStorage.getItem(KEY)||'[]');
-const cats=[['Mischievous Melts',/wax|melt|scent|fragrance|clp|mould|mold|shopify|etsy/i,'✦'],['Oscar',/oscar|dog|flea|treat/i,'🐾'],['Shopping',/buy|order|pick up|shopping|need more|get some/i,'⌑'],['Home & DIY',/paint|cabinet|trim|wall|shelf|radiator|wood|diy|room|garden|sand|drill/i,'⌂'],['Learning / Research',/look into|research|course|find out|learn/i,'⌕'],['Life Admin',/book|appointment|email|call|pay|renew|form/i,'☷'],['Personal',/mam|gary|birthday|card|personal/i,'♡'],['Ideas',/idea|maybe|could|what if/i,'☼']];
-function classify(t){for(const[name,re,icon]of cats)if(re.test(t))return{name,icon};return{name:'Inbox',icon:'☾'}}
-function splitDump(t){return t.replace(/\n+/g,'. ').split(/(?:[.!?]+\s+|;\s*|,\s+(?=(?:need|order|remember|idea|look|buy|call|email|finish|make|find)\b))/i).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(x=>x.length>2)}
+const $=s=>document.querySelector(s), KEY='brain-dump-v1';
+let thoughts=JSON.parse(localStorage.getItem(KEY)||'[]');
+const rules=[['Mischievous Melts',/wax|melt|scent|fragrance|clp|mould|mold|shopify|etsy/i],['Oscar',/oscar|dog|flea|treat/i],['Shopping',/buy|order|pick up|shopping|need more|get some/i],['Home & DIY',/paint|cabinet|trim|wall|shelf|radiator|wood|diy|room|garden|sand|drill/i],['Learning / Research',/look into|research|course|find out|learn/i],['Life Admin',/book|appointment|email|call|pay|renew|form|fit note/i],['Personal',/mam|gary|birthday|card|personal/i],['Ideas',/idea|maybe|could|what if/i]];
+function cat(t){for(const [n,r] of rules)if(r.test(t))return n;return'Inbox'}
+function split(t){return t.replace(/\n+/g,'. ').split(/(?:[.!?]+\s+|;\s*)/).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(x=>x.length>2)}
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function save(){localStorage.setItem(KEY,JSON.stringify(thoughts));render()}
-function render(){let x=thoughts[thoughts.length-1];$('#count').textContent=`${$('#dump').value.length}/1000`;if(!x){$('#recent').className='empty';$('#recent').innerHTML='';return}$('#recent').className='';$('#recent').innerHTML=`<div class="ico">${x.icon}</div><div><div class="title">${esc(x.text)}</div><div class="meta">${x.category} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="check" type="checkbox" ${x.done?'checked':''}>`;$('.check').onchange=e=>{x.done=e.target.checked;save()}}
-function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',1600)}
-$('#dump').oninput=()=>$('#count').textContent=`${$('#dump').value.length}/1000`;
-$('#dumpBtn').onclick=()=>{let raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{splitDump(raw).forEach(text=>{let c=classify(text);thoughts.push({id:crypto.randomUUID?crypto.randomUUID():Date.now()+Math.random()+'',text,category:c.name,icon:c.icon,created:Date.now(),done:false})});save();$('#dump').value='';$('#sorting').classList.remove('show')},850)};
-$('#speak').onclick=()=>{let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Voice capture needs Safari support');let r=new SR();r.lang='en-GB';r.onresult=e=>{$('#dump').value+=($('#dump').value?' ':'')+e.results[0][0].transcript};r.start()};
-
-function closeScreens(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'))}
-document.querySelectorAll('.back').forEach(b=>b.onclick=closeScreens);
-$('#home').onclick=closeScreens;
-$('#today').onclick=()=>{closeScreens();let box=$('#todayList');box.innerHTML=thoughts.length?thoughts.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${t.category}</small></div>`).join(''):'<div class="item">Nothing dumped yet.</div>';$('#todayScreen').classList.add('show')};
-$('#cats').onclick=()=>{closeScreens();let groups={};thoughts.forEach(t=>(groups[t.category]??=[]).push(t));$('#catList').innerHTML=Object.keys(groups).length?Object.entries(groups).map(([c,a])=>`<div class="item"><b>${esc(c)}</b><small>${a.length} thought${a.length===1?'':'s'}</small></div>`).join(''):'<div class="item">Your categories will appear here.</div>';$('#catsScreen').classList.add('show')};
-$('#search').onclick=()=>{closeScreens();$('#searchScreen').classList.add('show');$('#searchBox').focus()};
-$('#searchBox').oninput=e=>{let q=e.target.value.toLowerCase();let a=q?thoughts.filter(t=>t.text.toLowerCase().includes(q)||t.category.toLowerCase().includes(q)):[];$('#searchList').innerHTML=a.map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${t.category}</small></div>`).join('')};
+function render(){const x=thoughts.at(-1), card=$('#dynamicCard');if(!x){card.className='hidden';return}card.className='';card.innerHTML=`<div class="moon">☾</div><div><div class="thoughtTitle">${esc(x.text)}</div><div class="meta">${esc(x.category)} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="done" type="checkbox" ${x.done?'checked':''}>`;$('.done').onchange=e=>{x.done=e.target.checked;save()}}
+function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',1500)}
+$('#dump').oninput=e=>$('#counter').textContent=`${e.target.value.length}/1000`;
+$('#dumpBtn').onclick=()=>{const raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{split(raw).forEach(text=>thoughts.push({id:(crypto.randomUUID?.()||Date.now()+Math.random()+''),text,category:cat(text),created:Date.now(),done:false}));save();$('#dump').value='';$('#counter').textContent='0/1000';$('#sorting').classList.remove('show')},650)};
+$('#speak').onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Voice capture is unavailable here');const r=new SR();r.lang='en-GB';r.onresult=e=>{$('#dump').value+=($('#dump').value?' ':'')+e.results[0][0].transcript;$('#dump').dispatchEvent(new Event('input'))};r.start()};
+function close(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'))}document.querySelectorAll('.back').forEach(b=>b.onclick=close);$('#home').onclick=close;
+$('#today').onclick=()=>{close();$('#todayList').innerHTML=thoughts.length?thoughts.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)}</small></div>`).join(''):'<div class="item">Nothing dumped yet.</div>';$('#todayScreen').classList.add('show')};
+$('#cats').onclick=()=>{close();const g={};thoughts.forEach(t=>(g[t.category]??=[]).push(t));$('#catList').innerHTML=Object.keys(g).length?Object.entries(g).map(([c,a])=>`<div class="item"><b>${esc(c)}</b><small>${a.length} thought${a.length===1?'':'s'}</small></div>`).join(''):'<div class="item">Your categories will appear here.</div>';$('#catsScreen').classList.add('show')};
+$('#search').onclick=()=>{close();$('#searchScreen').classList.add('show');$('#searchBox').focus()};$('#searchBox').oninput=e=>{const q=e.target.value.toLowerCase(),a=q?thoughts.filter(t=>t.text.toLowerCase().includes(q)||t.category.toLowerCase().includes(q)):[];$('#searchList').innerHTML=a.map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)}</small></div>`).join('')};
 render();
-
-</script>
-<style>
-/* Functional layer over the locked approved artwork */
-#dump{color:#31261f!important;caret-color:#31261f!important;background:#f7eedf!important;opacity:.97}
-#dump::placeholder{color:#aaa39c}
-.count{display:block!important;top:45.55%!important;right:9%!important;color:#342b25!important;font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;z-index:5}
-#recent{display:grid!important;top:59.4%!important;left:4.8%!important;width:90.5%!important;height:7.9%!important;background:#171c15!important;z-index:5}
-#recent.empty{display:none!important}
-#speak,#dumpBtn{z-index:8;cursor:pointer}
-.screen{position:absolute;inset:0;z-index:15;background:#0e1510;color:#f5ead6;padding:42px 24px 120px;display:none;overflow:auto}
-.screen.show{display:block}.screen h1{font:42px Georgia,serif;margin:18px 0 6px}.screen .sub{opacity:.68;margin-bottom:24px}
-.back{border:1px solid #716b50;background:#1a2119;color:#f5ead6;border-radius:999px;padding:10px 14px;font-size:15px}
-.item{border:1px solid #625f47;background:#171d16;border-radius:18px;padding:15px;margin:10px 0}
-.item b{font-family:Georgia,serif;font-size:17px}.item small{display:block;opacity:.65;margin-top:5px;text-transform:uppercase;letter-spacing:.07em}
-#searchBox{width:100%;padding:14px;border-radius:15px;border:1px solid #756d53;background:#f6eddd;color:#2f2822;font-size:16px}
-</style>
-<div class="screen" id="todayScreen"><button class="back">← Home</button><h1>today</h1><div class="sub">The bits your brain needs today.</div><div id="todayList"></div></div>
-<div class="screen" id="catsScreen"><button class="back">← Home</button><h1>categories</h1><div class="sub">Your chaos, with homes.</div><div id="catList"></div></div>
-<div class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></div>
-
-<style>
-/* Clean functional overlays: cover only baked dynamic areas */
-.input-clean{
- position:absolute;left:6.2%;top:35.2%;width:87.5%;height:14.2%;
- background:#f6eddd;border:1px solid #d8c8b4;border-radius:18px;z-index:3;
-}
-#dump{
- left:7.4%!important;top:36.1%!important;width:84.8%!important;height:12.4%!important;
- background:transparent!important;opacity:1!important;z-index:4!important;
- color:#31261f!important;padding:12px 13px!important;
-}
-.count{top:46.3%!important;right:9.2%!important;z-index:6!important}
-.recent-clean{
- position:absolute;left:4.6%;top:57.1%;width:91%;height:9.5%;
- background:#111710;border-radius:17px;z-index:3;
-}
-#recent{
- top:58.0%!important;left:5.2%!important;width:89.8%!important;height:7.9%!important;
- z-index:5!important;margin:0!important;
-}
-</style>
-
-</body></html>
-<style>
-.input-clean,.recent-clean{display:none!important}
-/* Keep live textarea inside the artwork's existing input well */
-#dump{
- left:7.3%!important; top:37.2%!important; width:85.2%!important; height:10.5%!important;
- background:rgba(247,238,223,.97)!important; border:0!important; border-radius:16px!important;
- padding:14px!important; color:#31261f!important; z-index:6!important;
-}
-.count{top:46.3%!important;right:9%!important;z-index:7!important}
-/* Put the real latest-thought card exactly over the baked sample card */
-#recent{
- display:grid!important; left:5.0%!important; top:58.2%!important; width:90%!important; height:7.8%!important;
- background:#171d16!important; border:1px solid #746e50!important; border-radius:18px!important; z-index:7!important;
-}
-#recent.empty{display:none!important}
-</style>
-
-<style>
-/* Exact coordinates measured from approved-home.png (851 × 1685) */
-#dump{
- left:6.7%!important;
- top:33.1%!important;
- width:87.0%!important;
- height:14.3%!important;
- background:#f5ead9!important;
- border:1px solid #d5c3ac!important;
- border-radius:18px!important;
- padding:20px 22px!important;
- color:#31261f!important;
- font-size:15px!important;
- z-index:8!important;
-}
-#dump::placeholder{color:#aaa39c!important}
-.count{
- display:block!important;
- top:45.3%!important;
- right:9.3%!important;
- color:#2f2822!important;
- z-index:9!important;
-}
-#recent{
- display:grid!important;
- left:4.7%!important;
- top:64.1%!important;
- width:90.7%!important;
- height:8.9%!important;
- margin:0!important;
- padding:10px 14px!important;
- background:#171d16!important;
- border:1px solid #746e50!important;
- border-radius:18px!important;
- z-index:9!important;
-}
-/* cover only the baked static "1 thought" counter */
-.baked-count-cover{
- position:absolute;left:79.5%;top:59.4%;width:17.5%;height:3.2%;
- background:#111610;z-index:7;border-radius:8px;
-}
-.live-thought-count{
- position:absolute;right:6.3%;top:60.0%;z-index:8;color:#f4e8d0;
- font:14px Georgia,serif;
-}
-</style>
-<div class="baked-count-cover" aria-hidden="true"></div>
-<div class="live-thought-count" id="liveThoughtCount"></div>
-<script>
-function updateThoughtCount(){
- const n=thoughts.length, el=document.getElementById('liveThoughtCount');
- if(el) el.textContent=`${n} thought${n===1?'':'s'}`;
-}
-const _renderFinal=render;
-render=function(){_renderFinal();updateThoughtCount()}
-updateThoughtCount();
-</script>
+</script></body></html>
