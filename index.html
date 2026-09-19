@@ -31,15 +31,32 @@ nav button{position:absolute;bottom:3.7%;height:6%;z-index:9;border:0;background
 <script>
 const $=s=>document.querySelector(s), KEY='brain-dump-v1';
 let thoughts=JSON.parse(localStorage.getItem(KEY)||'[]');
-const rules=[['Mischievous Melts',/wax|melt|scent|fragrance|clp|mould|mold|shopify|etsy/i],['Oscar',/oscar|dog|flea|treat/i],['Shopping',/buy|order|pick up|shopping|need more|get some/i],['Home & DIY',/paint|cabinet|trim|wall|shelf|radiator|wood|diy|room|garden|sand|drill/i],['Learning / Research',/look into|research|course|find out|learn/i],['Life Admin',/book|appointment|email|call|pay|renew|form|fit note/i],['Personal',/mam|gary|birthday|card|personal/i],['Ideas',/idea|maybe|could|what if/i]];
+const rules=[['Mischievous Melts',/wax|melt|scent|fragrance|clp|mould|mold|shopify|etsy|oil|label|stock/i],['Oscar',/oscar|dog|flea|treat|vet/i],['Shopping',/buy|order|pick up|shopping|need more|get some|shopping list/i],['Home & DIY',/paint|cabinet|trim|wall|shelf|radiator|wood|diy|room|garden|sand|drill|wallpaper|filler|caulk/i],['Learning / Research',/look into|research|course|find out|learn|compare|check/i],['Life Admin',/book|appointment|email|call|pay|renew|form|fit note|post|parcel/i],['Personal',/mam|gary|birthday|card|personal/i],['Ideas',/idea|maybe|could|what if|thinking of/i]];
 function cat(t){for(const [n,r] of rules)if(r.test(t))return n;return'Inbox'}
-function split(t){return t.replace(/\n+/g,'. ').split(/(?:[.!?]+\s+|;\s*)/).map(x=>x.trim().replace(/[.!?]+$/,'')).filter(x=>x.length>2)}
+function kind(t){
+ if(/\b(buy|order|get|pick up|shopping|need more)\b/i.test(t))return'Shopping';
+ if(/\b(remind|remember|don't forget|tomorrow|today|tonight|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(t))return'Reminder';
+ if(/\b(idea|maybe|could|what if|thinking of)\b/i.test(t))return'Idea';
+ if(/\b(call|email|book|pay|clean|paint|make|finish|sort|send|print|label|photograph|do|fix|find)\b/i.test(t))return'Task';
+ return'Note'
+}
+function when(t){
+ const s=t.toLowerCase(),d=new Date(),out=new Date(d);
+ if(/\btomorrow\b/.test(s)){out.setDate(d.getDate()+1);return out.toISOString()}
+ if(/\btoday\b|\btonight\b/.test(s))return out.toISOString();
+ return null
+}
+function split(t){
+ return t.replace(/\n+/g,'. ')
+ .split(/(?:[.!?]+\s+|;\s*|,\s+(?=(?:and\s+)?(?:buy|order|get|call|email|book|remember|remind|paint|make|finish|sort|send|print|find|look|research|idea|maybe)\b))/i)
+ .map(x=>x.trim().replace(/^(?:and\s+)/i,'').replace(/[.!?]+$/,'')).filter(x=>x.length>2)
+}
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function save(){localStorage.setItem(KEY,JSON.stringify(thoughts));render()}
-function render(){const x=thoughts.at(-1), card=$('#dynamicCard');if(!x){card.className='hidden';return}card.className='';card.innerHTML=`<div class="moon">☾</div><div><div class="thoughtTitle">${esc(x.text)}</div><div class="meta">${esc(x.category)} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="done" type="checkbox" ${x.done?'checked':''}>`;$('.done').onchange=e=>{x.done=e.target.checked;save()}}
+function render(){const x=thoughts.at(-1), card=$('#dynamicCard');if(!x){card.className='hidden';return}card.className='';card.innerHTML=`<div class="moon">☾</div><div><div class="thoughtTitle">${esc(x.text)}</div><div class="meta">${esc(x.category)} · ${esc(x.type||'Note')} · ${new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div></div><input class="done" type="checkbox" ${x.done?'checked':''}>`;$('.done').onchange=e=>{x.done=e.target.checked;save()}}
 function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',1500)}
 $('#dump').oninput=e=>$('#counter').textContent=`${e.target.value.length}/1000`;
-$('#dumpBtn').onclick=()=>{const raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{split(raw).forEach(text=>thoughts.push({id:(crypto.randomUUID?.()||Date.now()+Math.random()+''),text,category:cat(text),created:Date.now(),done:false}));save();$('#dump').value='';$('#counter').textContent='0/1000';$('#sorting').classList.remove('show')},650)};
+$('#dumpBtn').onclick=()=>{const raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{split(raw).forEach(text=>thoughts.push({id:(crypto.randomUUID?.()||Date.now()+Math.random()+''),text,category:cat(text),type:kind(text),due:when(text),created:Date.now(),done:false}));save();$('#dump').value='';$('#counter').textContent='0/1000';$('#sorting').classList.remove('show')},650)};
 $('#speak').onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Voice capture is unavailable here');const r=new SR();r.lang='en-GB';r.onresult=e=>{$('#dump').value+=($('#dump').value?' ':'')+e.results[0][0].transcript;$('#dump').dispatchEvent(new Event('input'))};r.start()};
 function close(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'))}document.querySelectorAll('.back').forEach(b=>b.onclick=close);$('#home').onclick=close;
 $('#today').onclick=()=>{close();$('#todayList').innerHTML=thoughts.length?thoughts.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)}</small></div>`).join(''):'<div class="item">Nothing dumped yet.</div>';$('#todayScreen').classList.add('show')};
