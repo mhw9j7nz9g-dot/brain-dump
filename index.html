@@ -25,7 +25,7 @@ nav button{position:absolute;bottom:3.7%;height:6%;z-index:9;border:0;background
 <nav><button id="home">Home</button><button id="today">Today</button><button id="cats">Categories</button><button id="search">Search</button></nav>
 <section class="screen" id="todayScreen"><button class="back">← Home</button><h1>today</h1><div class="sub">The bits your brain needs today.</div><div id="todayList"></div></section>
 <section class="screen" id="catsScreen"><button class="back">← Home</button><h1>categories</h1><div class="sub">Your chaos, with homes.</div><div id="catList"></div></section>
-<section class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></section>
+<section class="screen" id="searchScreen"><button class="back">← Home</button><h1>search</h1><div class="sub">Find something you dumped.</div><input id="searchBox" placeholder="Search your brain…"><div id="searchList"></div></section><section class="screen" id="catDetail"><button class="back" id="catBack">← Categories</button><h1 id="catTitle">category</h1><div class="sub" id="catSub"></div><div id="catThoughts"></div></section>
 </main>
 <div class="sorting" id="sorting"><div><div class="moonbig">☾ ✦</div><h2>sorting<br>the chaos…</h2><p>Breaking it down and finding the right homes.</p></div></div><div class="toast" id="toast"></div>
 <script>
@@ -48,7 +48,7 @@ function when(t){
 }
 function split(t){
  return t.replace(/\n+/g,'. ')
- .split(/(?:[.!?]+\s+|;\s*|,\s+(?=(?:and\s+)?(?:buy|order|get|call|email|book|remember|remind|paint|make|finish|sort|send|print|find|look|research|idea|maybe)\b))/i)
+ .split(/(?:[.!?]+\s+|;\s*|,\s+(?=(?:and\s+)?(?:need|buy|order|get|call|email|book|remember|remind|paint|make|finish|sort|send|print|find|look|research|idea|maybe|tomorrow|today)\b))/i)
  .map(x=>x.trim().replace(/^(?:and\s+)/i,'').replace(/[.!?]+$/,'')).filter(x=>x.length>2)
 }
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -59,8 +59,14 @@ $('#dump').oninput=e=>$('#counter').textContent=`${e.target.value.length}/1000`;
 $('#dumpBtn').onclick=()=>{const raw=$('#dump').value.trim();if(!raw)return toast('Give me some chaos first 😂');$('#sorting').classList.add('show');setTimeout(()=>{split(raw).forEach(text=>thoughts.push({id:(crypto.randomUUID?.()||Date.now()+Math.random()+''),text,category:cat(text),type:kind(text),due:when(text),created:Date.now(),done:false}));save();$('#dump').value='';$('#counter').textContent='0/1000';$('#sorting').classList.remove('show')},650)};
 $('#speak').onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('Voice capture is unavailable here');const r=new SR();r.lang='en-GB';r.onresult=e=>{$('#dump').value+=($('#dump').value?' ':'')+e.results[0][0].transcript;$('#dump').dispatchEvent(new Event('input'))};r.start()};
 function close(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'))}document.querySelectorAll('.back').forEach(b=>b.onclick=close);$('#home').onclick=close;
-$('#today').onclick=()=>{close();$('#todayList').innerHTML=thoughts.length?thoughts.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)}</small></div>`).join(''):'<div class="item">Nothing dumped yet.</div>';$('#todayScreen').classList.add('show')};
-$('#cats').onclick=()=>{close();const g={};thoughts.forEach(t=>(g[t.category]??=[]).push(t));$('#catList').innerHTML=Object.keys(g).length?Object.entries(g).map(([c,a])=>`<div class="item"><b>${esc(c)}</b><small>${a.length} thought${a.length===1?'':'s'}</small></div>`).join(''):'<div class="item">Your categories will appear here.</div>';$('#catsScreen').classList.add('show')};
+$('#today').onclick=()=>{close();const now=new Date(),same=d=>d&&new Date(d).toDateString()===now.toDateString();const a=thoughts.filter(t=>!t.done&&(same(t.due)||t.type==='Reminder')).concat(thoughts.filter(t=>!t.done&&!same(t.due)&&t.type!=='Reminder').slice(-8).reverse());$('#todayList').innerHTML=a.length?a.map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)} · ${esc(t.type||'Note')}${t.due?' · '+new Date(t.due).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</small></div>`).join(''):'<div class="item">Nothing needs you today ✦</div>';$('#todayScreen').classList.add('show')};
+function openCategory(c){
+ const a=thoughts.filter(t=>t.category===c);close();$('#catTitle').textContent=c;$('#catSub').textContent=`${a.length} thought${a.length===1?'':'s'}`;
+ $('#catThoughts').innerHTML=a.slice().reverse().map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.type||'Note')}${t.due?' · '+new Date(t.due).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</small></div>`).join('');
+ $('#catDetail').classList.add('show')
+}
+$('#cats').onclick=()=>{close();const g={};thoughts.forEach(t=>(g[t.category]??=[]).push(t));$('#catList').innerHTML=Object.keys(g).length?Object.entries(g).map(([c,a])=>`<div class="item catItem" data-cat="${esc(c)}"><b>${esc(c)}</b><small>${a.length} thought${a.length===1?'':'s'}</small></div>`).join(''):'<div class="item">Your categories will appear here.</div>';document.querySelectorAll('.catItem').forEach(el=>el.onclick=()=>openCategory(el.dataset.cat));$('#catsScreen').classList.add('show')};
+$('#catBack').onclick=()=>{$('#catDetail').classList.remove('show');$('#cats').click()};
 $('#search').onclick=()=>{close();$('#searchScreen').classList.add('show');$('#searchBox').focus()};$('#searchBox').oninput=e=>{const q=e.target.value.toLowerCase(),a=q?thoughts.filter(t=>t.text.toLowerCase().includes(q)||t.category.toLowerCase().includes(q)):[];$('#searchList').innerHTML=a.map(t=>`<div class="item"><b>${esc(t.text)}</b><small>${esc(t.category)}</small></div>`).join('')};
 render();
 </script></body></html>
